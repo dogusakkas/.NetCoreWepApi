@@ -1,0 +1,62 @@
+using bsStoreBook.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using NLog;
+using Services.Contracts;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+LogManager.Setup().LoadConfigurationFromFile(Path.Combine(Directory.GetCurrentDirectory(), "nlog.config")); // NLog configuration
+
+builder.Services.AddControllers(config =>
+{
+    config.RespectBrowserAcceptHeader = true;
+    config.ReturnHttpNotAcceptable = true;
+})
+    .AddCustomCsvFormatter()
+    .AddXmlDataContractSerializerFormatters() // XML format desteði
+    .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly); // Controllers Presentation katmanýna taþýndý
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true; // Model validation kontrolünü controller'a býrak
+});
+
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen();
+
+builder.Services.ConfigureSqlContext(builder.Configuration); // DbContext
+
+builder.Services.ConfigureRepositoryManager(); // IRepository - Repository
+builder.Services.ConfigureServiceManager(); // IService - Service
+builder.Services.ConfigureLoggerService(); // ILogger - Logger
+builder.Services.ConfigureActionFilters(); // Action Filters
+
+var app = builder.Build();
+
+var logger = app.Services.GetRequiredService<ILoggerService>();
+
+app.ConfigureExceptionHandler(logger); // Global Exception Handler
+
+if (app.Environment.IsProduction())
+{
+    app.UseHsts(); // Production ortamýnda HSTS kullanýmý
+}
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
