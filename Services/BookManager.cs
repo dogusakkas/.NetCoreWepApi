@@ -1,6 +1,7 @@
 ﻿using Entities;
 using Entities.DTOs;
 using Entities.Exceptions;
+using Entities.RequestFeatures;
 using Repositories.Contracts;
 using Services.Contracts;
 using Services.Utilities.Mapperly;
@@ -34,10 +35,12 @@ namespace Services
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task<IEnumerable<BookDto>> GetAllBooksAsync(bool trackChanges)
+        public async Task<(IEnumerable<BookDto> bookDtos, MetaData metaData)> GetAllBooksAsync(BookParameters bookParameters, bool trackChanges)
         {
-            var books = await _repositoryManager.BookRepository.GetAllBooksAsync(trackChanges);
-            return _mapperly.BookToDtoList(books.ToList());
+            var bookswithMetaData = await _repositoryManager.BookRepository.GetAllBooksAsync(bookParameters, trackChanges);
+            var booksDto = _mapperly.BookToDtoList(bookswithMetaData.ToList());
+
+            return (booksDto, bookswithMetaData.MetaData);
         }
 
         public async Task<BookDto> GetOneBookByIdAsync(int id, bool trackChanges)

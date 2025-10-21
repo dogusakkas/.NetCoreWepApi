@@ -1,4 +1,5 @@
 using bsStoreBook.Extensions;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 using Services.Contracts;
@@ -33,6 +34,7 @@ builder.Services.ConfigureRepositoryManager(); // IRepository - Repository
 builder.Services.ConfigureServiceManager(); // IService - Service
 builder.Services.ConfigureLoggerService(); // ILogger - Logger
 builder.Services.ConfigureActionFilters(); // Action Filters
+builder.Services.ConfigureCors(); // CORS
 
 var app = builder.Build();
 
@@ -54,6 +56,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("CorsPolicy");
 
 app.UseAuthorization();
 
