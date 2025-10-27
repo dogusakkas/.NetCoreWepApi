@@ -38,6 +38,12 @@ namespace Services
         public async Task<(IEnumerable<BookDto> bookDtos, MetaData metaData)> GetAllBooksAsync(BookParameters bookParameters, bool trackChanges)
         {
             var bookswithMetaData = await _repositoryManager.BookRepository.GetAllBooksAsync(bookParameters, trackChanges);
+
+            if (!bookParameters.ValidPriceRange)
+            {
+                throw new PriceOutofRangeBadRequestException();
+            }
+
             var booksDto = _mapperly.BookToDtoList(bookswithMetaData.ToList());
 
             return (booksDto, bookswithMetaData.MetaData);

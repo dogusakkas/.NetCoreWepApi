@@ -6,7 +6,7 @@ namespace Entities.RequestFeatures
     {
         public MetaData MetaData { get; set; }
 
-        public PagedList(List<T> items, int count, int pageNumber, int pageSize) // constructor
+        public PagedList(List<T> items, int count, int pageNumber, int pageSize)
         {
             MetaData = new MetaData() // initialize MetaData
             {

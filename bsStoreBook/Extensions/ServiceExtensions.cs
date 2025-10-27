@@ -44,7 +44,7 @@ namespace bsStoreBook.Extensions
         /// Logger Servisini yapılandırır.
         /// </summary>
         /// <param name="services"></param>
-        public static void ConfigureLoggerService(this IServiceCollection services)
+        public static void ConfigureLoggerService(this IServiceCollection services) 
         {
             services.AddSingleton<ILoggerService, LoggerManager>(); // Logger Service
         }
@@ -65,7 +65,8 @@ namespace bsStoreBook.Extensions
         public static void ConfigureCors(this IServiceCollection services)
         {
             services.AddCors(options => options.AddPolicy("CorsPolicy",
-                builder => builder.AllowAnyOrigin()
+                builder => builder
+                .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .WithExposedHeaders("X-Pagination")));
@@ -75,8 +76,8 @@ namespace bsStoreBook.Extensions
 
 
 
-//Yaşam Döngüsü	    Ne Zaman Oluşur	        Uygun mu?	    Açıklama
+//Yaşam Döngüsü	    Ne Zaman Oluşur	            Açıklama
 
-//Singleton	        Uygulama başlarken	    ❌ Hayır	    Tek örnek, request context’ine erişemez
-//Scoped	        Her HTTP isteği başına	✅ Evet	        RouteData, ModelState, HttpContext gibi request bazlı nesneleri güvenli şekilde kullanır
-//Transient	        Her resolve çağrısında	⚠️ Gereksiz	    Fazla örnek oluşturur, performansı düşürür
+//Singleton	        Uygulama başlarken	   	    Tek örnek, request context’ine erişemez
+//Scoped	        Her HTTP isteği başına      RouteData, ModelState, HttpContext gibi request bazlı nesneleri güvenli şekilde kullanır
+//Transient	        Her resolve çağrısında	    Fazla örnek oluşturur, performansı düşürür
