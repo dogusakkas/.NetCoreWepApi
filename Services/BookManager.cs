@@ -5,6 +5,7 @@ using Entities.RequestFeatures;
 using Repositories.Contracts;
 using Services.Contracts;
 using Services.Utilities.Mapperly;
+using System.Dynamic;
 
 namespace Services
 {
@@ -12,10 +13,12 @@ namespace Services
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly AppMapperly _mapperly = new();
+        private readonly IDataShaper<BookDto> _dataShaper;
 
-        public BookManager(IRepositoryManager repositoryManager)
+        public BookManager(IRepositoryManager repositoryManager, IDataShaper<BookDto> dataShaper)
         {
             _repositoryManager = repositoryManager;
+            _dataShaper = dataShaper;
         }
 
         public async Task<BookDto> CreateOneBookAsync(BookDto bookDto)
@@ -35,7 +38,7 @@ namespace Services
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task<(IEnumerable<BookDto> bookDtos, MetaData metaData)> GetAllBooksAsync(BookParameters bookParameters, bool trackChanges)
+        public async Task<(IEnumerable<ExpandoObject> bookDtos, MetaData metaData)> GetAllBooksAsync(BookParameters bookParameters, bool trackChanges)
         {
             var bookswithMetaData = await _repositoryManager.BookRepository.GetAllBooksAsync(bookParameters, trackChanges);
 
@@ -46,7 +49,9 @@ namespace Services
 
             var booksDto = _mapperly.BookToDtoList(bookswithMetaData.ToList());
 
-            return (booksDto, bookswithMetaData.MetaData);
+            var shapedData = _dataShaper.ShapeData(booksDto, bookParameters.Fields);
+
+            return (books: shapedData, metaData: bookswithMetaData.MetaData);
         }
 
         public async Task<BookDto> GetOneBookByIdAsync(int id, bool trackChanges)

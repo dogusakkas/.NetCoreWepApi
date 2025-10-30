@@ -35,6 +35,7 @@ builder.Services.ConfigureServiceManager(); // IService - Service
 builder.Services.ConfigureLoggerService(); // ILogger - Logger
 builder.Services.ConfigureActionFilters(); // Action Filters
 builder.Services.ConfigureCors(); // CORS
+builder.Services.ConfigureDataShaper(); // Data Shaper
 
 var app = builder.Build();
 

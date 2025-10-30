@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Entities.DTOs;
+using Microsoft.EntityFrameworkCore;
 using Presentation.ActionFilters;
 using Repositories.Contracts;
 using Repositories.EFCore;
@@ -44,7 +45,7 @@ namespace bsStoreBook.Extensions
         /// Logger Servisini yapılandırır.
         /// </summary>
         /// <param name="services"></param>
-        public static void ConfigureLoggerService(this IServiceCollection services) 
+        public static void ConfigureLoggerService(this IServiceCollection services)
         {
             services.AddSingleton<ILoggerService, LoggerManager>(); // Logger Service
         }
@@ -70,6 +71,15 @@ namespace bsStoreBook.Extensions
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .WithExposedHeaders("X-Pagination")));
+        }
+
+        /// <summary>
+        /// Data Shaper yapılandırması.
+        /// </summary>
+        /// <param name="services"></param>
+        public static void ConfigureDataShaper(this IServiceCollection services)
+        {
+            services.AddScoped<IDataShaper<BookDto>, DataShaper<BookDto>>();
         }
     }
 }

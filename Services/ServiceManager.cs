@@ -1,4 +1,5 @@
-﻿using Repositories.Contracts;
+﻿using Entities.DTOs;
+using Repositories.Contracts;
 using Services.Contracts;
 
 namespace Services
@@ -6,9 +7,10 @@ namespace Services
     public class ServiceManager : IServiceManager
     {
         private readonly Lazy<IBookService> _bookService;
-        public ServiceManager(IRepositoryManager repositoryManager)
+        private readonly IDataShaper<BookDto> _dataShaper;
+        public ServiceManager(IRepositoryManager repositoryManager, IDataShaper<BookDto> dataShaper)
         {
-            _bookService = new Lazy<IBookService>(() => new BookManager(repositoryManager));
+            _bookService = new Lazy<IBookService>(() => new BookManager(repositoryManager, dataShaper));
         }
 
         public IBookService BookService => _bookService.Value;
