@@ -1,7 +1,7 @@
 using bsStoreBook.Extensions;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
+using Services;
 using Services.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,10 +13,10 @@ LogManager.Setup().LoadConfigurationFromFile(Path.Combine(Directory.GetCurrentDi
 builder.Services.AddControllers(config =>
 {
     config.RespectBrowserAcceptHeader = true;
-    config.ReturnHttpNotAcceptable = true;
+    config.ReturnHttpNotAcceptable = true; // Desteklenmeyen formatlar için 406 Not Acceptable döner
 })
-    .AddCustomCsvFormatter()
     .AddXmlDataContractSerializerFormatters() // XML format desteði
+    .AddCustomCsvFormatter() // CSV format desteði
     .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly); // Controllers Presentation katmanýna taþýndý
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -36,6 +36,8 @@ builder.Services.ConfigureLoggerService(); // ILogger - Logger
 builder.Services.ConfigureActionFilters(); // Action Filters
 builder.Services.ConfigureCors(); // CORS
 builder.Services.ConfigureDataShaper(); // Data Shaper
+builder.Services.AddCustomMediaTypes(); // Custom Media Types
+builder.Services.AddScoped<IBookLinks, BookLinks>(); // IBookLinks - BookLinks
 
 var app = builder.Build();
 

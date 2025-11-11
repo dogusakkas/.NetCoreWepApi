@@ -1,4 +1,6 @@
 ﻿using Entities.DTOs;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Presentation.ActionFilters;
 using Repositories.Contracts;
@@ -58,6 +60,7 @@ namespace bsStoreBook.Extensions
         {
             services.AddScoped<LogFilterAttribute>(); // Log Filter
             services.AddScoped<ValidationFilterAttribute>(); // Validation Filter
+            services.AddScoped<ValidateMediaTypeAttribute>(); // Validate Media Type Filter
         }
 
         /// <summary>
@@ -80,6 +83,31 @@ namespace bsStoreBook.Extensions
         public static void ConfigureDataShaper(this IServiceCollection services)
         {
             services.AddScoped<IDataShaper<BookDto>, DataShaper<BookDto>>();
+        }
+
+        /// <summary>
+        /// Özel Medya Türlerini ekler.
+        /// </summary>
+        /// <param name="services"></param>
+        public static void AddCustomMediaTypes(this IServiceCollection services)
+        {
+            services.Configure<MvcOptions>(config =>
+            {
+                var systemTextJsonOutputFormatter = config.OutputFormatters
+                    .OfType<SystemTextJsonOutputFormatter>()?.FirstOrDefault();
+
+                if (systemTextJsonOutputFormatter != null)
+                {
+                    systemTextJsonOutputFormatter.SupportedMediaTypes.Add("application/vnd.bsstorebook.hateoas+json");
+                }
+                var xmlOutputFormatter = config.OutputFormatters
+                    .OfType<XmlDataContractSerializerOutputFormatter>()?
+                    .FirstOrDefault();
+                if (xmlOutputFormatter != null)
+                {
+                    xmlOutputFormatter.SupportedMediaTypes.Add("application/vnd.bsstorebook.hateoas+xml");
+                }
+            });
         }
     }
 }

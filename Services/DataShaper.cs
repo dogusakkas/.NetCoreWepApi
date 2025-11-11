@@ -1,4 +1,5 @@
-﻿using Services.Contracts;
+﻿using Entities.Models;
+using Services.Contracts;
 using System.Dynamic;
 using System.Reflection;
 
@@ -13,65 +14,59 @@ namespace Services
             Properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
         }
 
-        public IEnumerable<ExpandoObject> ShapeData(IEnumerable<T> entities, string? fieldsString)
+        public IEnumerable<ShapedEntity> ShapeData(IEnumerable<T> entities, string? fieldsString)
         {
             var requiredFields = GetRequiredProperties(fieldsString);
             return FetchData(entities, requiredFields);
         }
 
-        public ExpandoObject ShapeData(T entity, string? fieldsString)
+        public ShapedEntity ShapeData(T entity, string? fieldsString)
         {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
             var requiredProperties = GetRequiredProperties(fieldsString);
             return FetchDataForEntity(entity, requiredProperties);
         }
 
         private IEnumerable<PropertyInfo> GetRequiredProperties(string? fieldsString)
         {
-            var requiredProperties = new List<PropertyInfo>();
+            if (string.IsNullOrWhiteSpace(fieldsString))
+                return Properties;
 
-            if (!string.IsNullOrWhiteSpace(fieldsString))
-            {
-                var fields = fieldsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            var fields = fieldsString.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                     .Select(f => f.Trim());
 
-                foreach (var field in fields)
-                {
-                    var property = Properties.FirstOrDefault(pi => pi.Name.Equals(field.Trim(), StringComparison.InvariantCultureIgnoreCase));
-
-                    if (property == null)
-                        continue;
-
-                    requiredProperties.Add(property);
-                }
-            }
-            else
-            {
-                requiredProperties = Properties.ToList();
-            }
-
-            return requiredProperties;
+            return Properties
+                .Where(pi => fields.Contains(pi.Name, StringComparer.InvariantCultureIgnoreCase));
         }
 
-        private ExpandoObject FetchDataForEntity(T entity, IEnumerable<PropertyInfo> requiredProperties)
+
+        private ShapedEntity FetchDataForEntity(T entity, IEnumerable<PropertyInfo> requiredProperties)
         {
-            var data = new ExpandoObject();
+            var data = new ShapedEntity();
 
             foreach (var item in requiredProperties)
             {
                 var objectPropertyValue = item.GetValue(entity);
-                data.TryAdd(item.Name, objectPropertyValue);
+                data.Entity.TryAdd(item.Name, objectPropertyValue);
             }
+
+            var objectProperty = entity.GetType().GetProperty("Id");
+            data.Id= (int)objectProperty.GetValue(entity);
+
             return data;
         }
 
-        private IEnumerable<ExpandoObject> FetchData(IEnumerable<T> entities, IEnumerable<PropertyInfo> requiredProperties)
+        private IEnumerable<ShapedEntity> FetchData(IEnumerable<T> entities, IEnumerable<PropertyInfo> requiredProperties)
         {
-            var shapedData = new List<ExpandoObject>();
             foreach (var item in entities)
-            {
-                var shapedObject = FetchDataForEntity(item, requiredProperties);
-                shapedData.Add(shapedObject);
-            }
-            return shapedData;
+                yield return FetchDataForEntity(item, requiredProperties);
         }
+
+        //  yield → “Veriyi nasıl ürettiğinle ilgilidir.”
+        //  Pagination → “Veriyi ne kadar çektiğinle ilgilidir.”
+        //  Kullanıcının gördüğü şey → “Verinin ne zaman gönderildiğiyle ilgilidir.”
+
     }
 }
