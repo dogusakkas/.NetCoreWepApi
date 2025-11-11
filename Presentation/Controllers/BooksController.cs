@@ -22,6 +22,7 @@ namespace Presentation.Controllers
             _serviceManager = serviceManager;
         }
 
+        [HttpHead]
         [HttpGet]
         [ServiceFilter(typeof(ValidateMediaTypeAttribute))]
         public async Task<IActionResult> GetAllBooks([FromQuery] BookParameters bookParameters)
@@ -89,6 +90,13 @@ namespace Presentation.Controllers
             await _serviceManager.BookService.SaveChangesForPatchAsync(result.bookDtoForUpdate, result.book);
 
             return NoContent();
+        }
+
+        [HttpOptions]
+        public IActionResult GetBooksOptions()
+        {
+            Response.Headers.Add("Allow", "GET, OPTIONS, POST, PUT, PATCH, DELETE, HEAD");
+            return Ok();
         }
     }
 }
