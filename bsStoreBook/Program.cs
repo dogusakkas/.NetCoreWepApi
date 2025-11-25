@@ -37,7 +37,9 @@ builder.Services.ConfigureActionFilters(); // Action Filters
 builder.Services.ConfigureCors(); // CORS
 builder.Services.ConfigureDataShaper(); // Data Shaper
 builder.Services.AddCustomMediaTypes(); // Custom Media Types
+builder.Services.ConfigureVersioning(); // API Versioning
 builder.Services.AddScoped<IBookLinks, BookLinks>(); // IBookLinks - BookLinks
+
 
 var app = builder.Build();
 

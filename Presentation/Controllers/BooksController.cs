@@ -7,11 +7,13 @@ using Presentation.ActionFilters;
 using Microsoft.AspNetCore.JsonPatch.Adapters;
 using Entities.RequestFeatures;
 using System.Text.Json;
+using Asp.Versioning;
 
 namespace Presentation.Controllers
 {
+    [ApiVersion("1.0")]
     [ServiceFilter(typeof(LogFilterAttribute))] // Log Filter
-    [Route("api/[controller]")]
+    [Route("api/books")]
     [ApiController]
     public class BooksController : ControllerBase
     {
@@ -23,7 +25,7 @@ namespace Presentation.Controllers
         }
 
         [HttpHead]
-        [HttpGet]
+        [HttpGet (Name = "GetAllBooks")]
         [ServiceFilter(typeof(ValidateMediaTypeAttribute))]
         public async Task<IActionResult> GetAllBooks([FromQuery] BookParameters bookParameters)
         {
@@ -47,7 +49,7 @@ namespace Presentation.Controllers
         }
 
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        [HttpPost]
+        [HttpPost (Name = "CreateBook")]
         public async Task<IActionResult> CreateBook([FromBody] BookDto book)
         {
             await _serviceManager.BookService.CreateOneBookAsync(book);

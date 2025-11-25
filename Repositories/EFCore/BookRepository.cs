@@ -33,6 +33,14 @@ namespace Repositories.EFCore
             return await PagedList<Book>.ToPagedListAsync(books, bookParameters.PageNumber, bookParameters.PageSize);
         }
 
+        public async Task<List<Book>> GetAllBooksAsync(bool trackChanges)
+        {
+            var books = await FindAll(trackChanges)
+                .OrderBy(x => x.Id).ToListAsync();
+
+            return books;
+        }
+
         //EF Core, her LINQ sorgusunu her çağrıda yeniden derler:
         //LINQ ifadeni alır - SQL sorgusuna çevirir - Cache’e alır
 
