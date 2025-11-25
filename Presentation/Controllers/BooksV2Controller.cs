@@ -6,8 +6,9 @@ namespace Presentation.Controllers
 {
 
     [ApiController]
-    [ApiVersion("2.0", Deprecated = true)]
-    [Route("api/books")]
+    //[ApiVersion("2.0", Deprecated = true)]
+    [ApiVersion("2.0")]
+    [Route("api/v2/books")]
     public class BooksV2Controller : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -26,7 +27,7 @@ namespace Presentation.Controllers
                 Title = x.Title,
                 Id = x.Id
             });
-            return Ok(books);
+            return Ok(booksV2);
         }
     }
 }

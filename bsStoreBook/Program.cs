@@ -14,6 +14,10 @@ builder.Services.AddControllers(config =>
 {
     config.RespectBrowserAcceptHeader = true;
     config.ReturnHttpNotAcceptable = true; // Desteklenmeyen formatlar için 406 Not Acceptable döner
+    config.CacheProfiles.Add("5mins", new CacheProfile()
+    {
+        Duration = 300
+    });
 })
     .AddXmlDataContractSerializerFormatters() // XML format desteði
     .AddCustomCsvFormatter() // CSV format desteði
@@ -39,6 +43,8 @@ builder.Services.ConfigureDataShaper(); // Data Shaper
 builder.Services.AddCustomMediaTypes(); // Custom Media Types
 builder.Services.ConfigureVersioning(); // API Versioning
 builder.Services.AddScoped<IBookLinks, BookLinks>(); // IBookLinks - BookLinks
+builder.Services.ConfigureResponseCaching(); // Response Caching
+builder.Services.ConfigureHttpCacheHeaders(); // HTTP Cache Headers
 
 
 var app = builder.Build();
@@ -63,6 +69,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("CorsPolicy");
+app.UseResponseCaching();
+app.UseHttpCacheHeaders();
 
 app.UseAuthorization();
 

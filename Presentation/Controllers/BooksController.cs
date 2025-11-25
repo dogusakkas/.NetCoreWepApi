@@ -8,13 +8,16 @@ using Microsoft.AspNetCore.JsonPatch.Adapters;
 using Entities.RequestFeatures;
 using System.Text.Json;
 using Asp.Versioning;
+using Marvin.Cache.Headers;
 
 namespace Presentation.Controllers
 {
-    [ApiVersion("1.0")]
+    [ApiVersion("1.0")] // API Version 1.0
     [ServiceFilter(typeof(LogFilterAttribute))] // Log Filter
-    [Route("api/books")]
-    [ApiController]
+    [Route("api/{v:apiversion}/books")] // API Versioning
+    [ApiController] // API Controller
+    //[ResponseCache(CacheProfileName = "5mins")] // Cache Profile
+    //[HttpCacheExpiration(CacheLocation = CacheLocation.Public, MaxAge = 80)]
     public class BooksController : ControllerBase
     {
         private readonly IServiceManager _serviceManager;
@@ -26,7 +29,8 @@ namespace Presentation.Controllers
 
         [HttpHead]
         [HttpGet (Name = "GetAllBooks")]
-        [ServiceFilter(typeof(ValidateMediaTypeAttribute))]
+        [ServiceFilter(typeof(ValidateMediaTypeAttribute))] // karşılanan medya tipini doğrulama filtresi
+        //[ResponseCache(Duration = 60)] // Response Caching
         public async Task<IActionResult> GetAllBooks([FromQuery] BookParameters bookParameters)
         {
             var linkParameters = new LinkParameters()

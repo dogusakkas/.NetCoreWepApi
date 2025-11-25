@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using Entities.DTOs;
+using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
@@ -127,10 +128,28 @@ namespace bsStoreBook.Extensions
 
                 opt.ApiVersionReader = new HeaderApiVersionReader("api-version");
 
-                opt.Conventions.Controller<BooksController>()
-                    .HasApiVersion(new ApiVersion(1, 0));
-                opt.Conventions.Controller<BooksV2Controller>()
-                    .HasApiVersion(new ApiVersion(2, 0));
+                //opt.Conventions.Controller<BooksController>()
+                //    .HasApiVersion(new ApiVersion(1, 0));
+                //opt.Conventions.Controller<BooksV2Controller>()
+                //    .HasApiVersion(new ApiVersion(2, 0));
+            });
+        }
+
+        public static void ConfigureResponseCaching(this IServiceCollection services)
+        {
+            services.AddResponseCaching();
+        }
+
+        public static void ConfigureHttpCacheHeaders(this IServiceCollection services)
+        {
+            services.AddHttpCacheHeaders(expirationOpt =>
+            {
+                expirationOpt.MaxAge = 70;
+                expirationOpt.CacheLocation = CacheLocation.Public;
+            },
+            validationOpt =>
+            {
+                validationOpt.MustRevalidate = false; // yeniden validate etme zorunlulu
             });
         }
     }
